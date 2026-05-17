@@ -8,6 +8,7 @@ import { OctagonAlertIcon } from "lucide-react"
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Alert, AlertTitle} from "@/components/ui/alert";
+import { FaGithub, FaGoogle } from "react-icons/fa"
 
 import {
     Form,
@@ -19,9 +20,9 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import Link from "next/link";
-import {useRouter} from "next/navigation";
 import {useState} from "react";
 import {authClient} from "@/lib/auth-client";
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
     email: z.email(),
@@ -53,11 +54,29 @@ const SignInView = () => {
             {
                 email: data.email,
                 password: data.password,
+                callbackURL: "/"
             },
             {
                 onSuccess: () => {
                     setPending(false)
                     router.push("/")
+                },
+                onError: ({ error }) => {
+                    setPending(false)
+                    setError(error.message)
+                }
+            }
+        )
+    }
+
+    const onSubmitSocial = (provider: "google" | "github") => {
+        setError(null)
+        setPending(true)
+
+        authClient.signIn.social({ provider, callbackURL: "/" },
+            {
+                onSuccess: () => {
+                    setPending(false)
                 },
                 onError: ({ error }) => {
                     setPending(false)
@@ -153,8 +172,9 @@ const SignInView = () => {
                                         variant={"outline"}
                                         type={"button"}
                                         className={"w-full"}
+                                        onClick={() => onSubmitSocial("google") }
                                     >
-                                        Google
+                                        <FaGoogle />
                                     </Button>
 
                                     {/* Github   */}
@@ -163,8 +183,9 @@ const SignInView = () => {
                                         variant={"outline"}
                                         type={"button"}
                                         className={"w-full"}
+                                        onClick={() => onSubmitSocial("github") }
                                     >
-                                        Github
+                                        <FaGithub />
                                     </Button>
                                 </div>
 
